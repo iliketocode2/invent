@@ -192,18 +192,28 @@ class _InventBLE:
         """
         Remove from the registry, unsubscribe handlers, and detach the
         characteristic event listener.
+
+        Unsubscribe calls are guarded so that cleanup is always safe to call
+        even if the channel has already been cleared (e.g. by the test
+        framework between async tasks).
         """
         BLE_CONNECTIONS.pop(self.channel, None)
-        invent.unsubscribe(
-            handler=self._handle_send,
-            from_channel=self.channel,
-            when_subject="send",
-        )
-        invent.unsubscribe(
-            handler=self._handle_close,
-            from_channel=self.channel,
-            when_subject="close",
-        )
+        try:
+            invent.unsubscribe(
+                handler=self._handle_send,
+                from_channel=self.channel,
+                when_subject="send",
+            )
+        except (ValueError, KeyError):
+            pass
+        try:
+            invent.unsubscribe(
+                handler=self._handle_close,
+                from_channel=self.channel,
+                when_subject="close",
+            )
+        except (ValueError, KeyError):
+            pass
         if self._characteristic_obj and self._value_changed_proxy:
             try:
                 self._characteristic_obj.removeEventListener(

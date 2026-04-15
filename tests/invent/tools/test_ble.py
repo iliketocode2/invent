@@ -125,10 +125,13 @@ async def test_ble_connecting_status_on_init():
     """
     channel = "test_ble_connecting"
     got_connecting = asyncio.Event()
+    got_closed = asyncio.Event()
 
     def on_status(message):
         if message.status == "connecting":
             got_connecting.set()
+        elif message.status == "closed":
+            got_closed.set()
 
     invent.subscribe(on_status, to_channel=channel, when_subject="status")
 
@@ -142,7 +145,11 @@ async def test_ble_connecting_status_on_init():
         ble.ble(channel=channel, service="180d", characteristic="2a37")
         await got_connecting.wait()
 
-    ble.BLE_CONNECTIONS.pop(channel, None)
+        invent.publish(
+            message=invent.Message("close"),
+            to_channel=channel,
+        )
+        await got_closed.wait()
 
 
 async def test_ble_full_lifecycle():
@@ -208,6 +215,14 @@ async def test_ble_receive_notification():
     mock_char = _MockCharacteristic()
     mock_device = _MockDevice(_MockServer(_MockService(mock_char)))
 
+    got_closed = asyncio.Event()
+
+    def on_closed(message):
+        if message.status == "closed":
+            got_closed.set()
+
+    invent.subscribe(on_closed, to_channel=channel, when_subject="status")
+
     with umock.patch("invent.tools.ble:window") as mock_window:
         mock_window.navigator.bluetooth.requestDevice = _make_mock_bluetooth(
             mock_device
@@ -218,9 +233,13 @@ async def test_ble_receive_notification():
         mock_char.simulate_notification(b"\x48\x65\x6c\x6c\x6f")
         await got_message.wait()
 
-    assert received["data"] == b"\x48\x65\x6c\x6c\x6f", received["data"]
+        invent.publish(
+            message=invent.Message("close"),
+            to_channel=channel,
+        )
+        await got_closed.wait()
 
-    invent.publish(message=invent.Message("close"), to_channel=channel)
+    assert received["data"] == b"\x48\x65\x6c\x6c\x6f", received["data"]
 
 
 async def test_ble_send_data():
@@ -231,6 +250,7 @@ async def test_ble_send_data():
     channel = "test_ble_send"
     got_open = asyncio.Event()
     write_done = asyncio.Event()
+    got_closed = asyncio.Event()
 
     mock_char = _MockCharacteristic()
     original_write = mock_char.writeValueWithResponse
@@ -246,6 +266,8 @@ async def test_ble_send_data():
     def on_status(message):
         if message.status == "open":
             got_open.set()
+        elif message.status == "closed":
+            got_closed.set()
 
     invent.subscribe(on_status, to_channel=channel, when_subject="status")
 
@@ -262,9 +284,13 @@ async def test_ble_send_data():
         )
         await write_done.wait()
 
-    assert mock_char.written == [b"\x01\x02\x03"], mock_char.written
+        invent.publish(
+            message=invent.Message("close"),
+            to_channel=channel,
+        )
+        await got_closed.wait()
 
-    invent.publish(message=invent.Message("close"), to_channel=channel)
+    assert mock_char.written == [b"\x01\x02\x03"], mock_char.written
 
 
 async def test_ble_send_string_data():
@@ -275,6 +301,7 @@ async def test_ble_send_string_data():
     channel = "test_ble_send_str"
     got_open = asyncio.Event()
     write_done = asyncio.Event()
+    got_closed = asyncio.Event()
 
     mock_char = _MockCharacteristic()
     original_write = mock_char.writeValueWithResponse
@@ -290,6 +317,8 @@ async def test_ble_send_string_data():
     def on_status(message):
         if message.status == "open":
             got_open.set()
+        elif message.status == "closed":
+            got_closed.set()
 
     invent.subscribe(on_status, to_channel=channel, when_subject="status")
 
@@ -306,9 +335,13 @@ async def test_ble_send_string_data():
         )
         await write_done.wait()
 
-    assert mock_char.written == [b"hello"], mock_char.written
+        invent.publish(
+            message=invent.Message("close"),
+            to_channel=channel,
+        )
+        await got_closed.wait()
 
-    invent.publish(message=invent.Message("close"), to_channel=channel)
+    assert mock_char.written == [b"hello"], mock_char.written
 
 
 async def test_ble_send_before_open():
@@ -319,6 +352,7 @@ async def test_ble_send_before_open():
     channel = "test_ble_send_queued"
     got_open = asyncio.Event()
     write_done = asyncio.Event()
+    got_closed = asyncio.Event()
 
     mock_char = _MockCharacteristic()
     original_write = mock_char.writeValueWithResponse
@@ -334,6 +368,8 @@ async def test_ble_send_before_open():
     def on_status(message):
         if message.status == "open":
             got_open.set()
+        elif message.status == "closed":
+            got_closed.set()
 
     invent.subscribe(on_status, to_channel=channel, when_subject="status")
 
@@ -352,9 +388,13 @@ async def test_ble_send_before_open():
         await got_open.wait()
         await write_done.wait()
 
-    assert mock_char.written == [b"\xAB\xCD"], mock_char.written
+        invent.publish(
+            message=invent.Message("close"),
+            to_channel=channel,
+        )
+        await got_closed.wait()
 
-    invent.publish(message=invent.Message("close"), to_channel=channel)
+    assert mock_char.written == [b"\xAB\xCD"], mock_char.written
 
 
 async def test_ble_duplicate_channel_raises():
@@ -363,6 +403,17 @@ async def test_ble_duplicate_channel_raises():
     raise a ValueError.
     """
     channel = "test_ble_dup"
+    got_open = asyncio.Event()
+    got_closed = asyncio.Event()
+
+    def on_status(message):
+        if message.status == "open":
+            got_open.set()
+        elif message.status == "closed":
+            got_closed.set()
+
+    invent.subscribe(on_status, to_channel=channel, when_subject="status")
+
     mock_char = _MockCharacteristic()
     mock_device = _MockDevice(_MockServer(_MockService(mock_char)))
 
@@ -375,7 +426,13 @@ async def test_ble_duplicate_channel_raises():
         with upytest.raises(ValueError):
             ble.ble(channel=channel, service="180d", characteristic="2a37")
 
-    ble.BLE_CONNECTIONS.pop(channel, None)
+        await got_open.wait()
+
+        invent.publish(
+            message=invent.Message("close"),
+            to_channel=channel,
+        )
+        await got_closed.wait()
 
 
 async def test_ble_error_on_connect_failure():

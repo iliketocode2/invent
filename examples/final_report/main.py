@@ -7,19 +7,13 @@ import invent
 from invent.ui import *
 from datetime import datetime
 
-# -- Navigation --
-
-
 def navigate(message):
     """Route 'navigate' channel press events to the named page."""
     page_id = message.source.name.split("_btn")[0]
     invent.show_page(page_id)
 
-
 invent.subscribe(navigate, to_channel="navigate", when_subject=["press"])
 
-# Ordered list of (button label, page ID) pairs used to build
-# the navigation header on every page.
 _NAV_PAGES = [
     ("Home", "cover"),
     ("PyScript", "pyscript"),
@@ -100,8 +94,8 @@ cover = Page(
                 Alert(
                     title="About This Report",
                     text=(
-                        "This report is itself an Invent application "
-                        "— one of the two open-source projects I worked "
+                        "This report is itself an Invent application: "
+                        "one of the two open-source projects I worked "
                         "on this semester. Use the navigation bar at the "
                         "top to move between sections."
                     ),
@@ -126,9 +120,7 @@ cover = Page(
                         "PyScript is Anaconda's platform for running "
                         "Python in the browser (19k+ GitHub stars). "
                         "Invent is a Python-first browser app framework "
-                        "built on top of PyScript. Both share many of "
-                        "the same maintainers, making the semester feel "
-                        "like working within one cohesive community."
+                        "built on top of PyScript."
                     ),
                     purpose="SECONDARY",
                 ),
@@ -136,8 +128,8 @@ cover = Page(
                     title="Weekly Meetings",
                     text=(
                         "Throughout the semester I had weekly meetings "
-                        "with Nicholas Tollervey and my academic advisor "
-                        "Chris. These meetings set the direction for my "
+                        "with Nicholas Tollervey and Chris Rogers."
+                        "These meetings guided the direction for my "
                         "contributions and provided regular feedback on "
                         "my progress in both PyScript and Invent."
                     ),
@@ -181,8 +173,7 @@ pyscript_page = Page(
                                 "a string raised a TypeError. The fix uses "
                                 "the browser's native DOM append(), which "
                                 "creates a text node rather than an element"
-                                " node — preserving CSS selectors and "
-                                "layout performance."
+                                " node."
                             )
                         ),
                         Code(
@@ -342,7 +333,8 @@ invent_work_page = Page(
                     html=(
                         "<p>Invent is a Python-first browser app framework"
                         " built on PyScript. The page you are reading "
-                        "right now is itself an Invent app. "
+                        "right now is itself an Invent app! Invent is" \
+                        "originally created by Nicholas Tollervey. "
                         '<a href="https://inventframework.org/"'
                         ' target="_blank" rel="noopener noreferrer">'
                         "inventframework.org</a></p>"
@@ -498,9 +490,9 @@ invent_work_page = Page(
                                 "write Python OpenCV code in a CodeEditor "
                                 "and run it against a live camera feed "
                                 "using PyScript's Donkey (worker) pattern."
-                                " Not yet merged: the example page and "
-                                "widget changes need to be split into "
-                                "separate PRs first."
+                                " Not yet merged: we are still figuting out"
+                                "how to standardized test pages for widgets"
+                                "that require developer interaction to test."
                             )
                         ),
                         _link(
@@ -529,7 +521,7 @@ demos_page = Page(
                 Label(
                     text=(
                         "The widgets below were contributed this semester."
-                        " They are rendered live — not a screenshot."
+                        " They are rendered live!"
                     )
                 ),
                 Html(html="<h2>Rating Widget</h2>"),
@@ -573,7 +565,7 @@ demos_page = Page(
                 Label(
                     text=(
                         "Supports photo, video, and both modes. "
-                        "The widget below is in photo mode — press the "
+                        "The widget below is in photo mode: press the "
                         "shutter button to capture a still frame."
                     )
                 ),
@@ -612,7 +604,7 @@ quotes_page = Page(
                             timestamp=datetime(2026, 4, 18),
                             content=(
                                 "[Quote from Nicholas Tollervey — "
-                                "Invent maintainer and PyScript core "
+                                "Invent creator and PyScript core "
                                 "contributor. To be added.]"
                             ),
                         ),
@@ -657,26 +649,33 @@ reflection_page = Page(
                 _nav_header(),
                 Html(html="<h1>Reflection</h1>"),
                 Label(text="Tufts CS practicum reflection questions."),
-                Alert(
-                    title="Draft — answers not yet filled in",
-                    text=(
-                        "Replace each placeholder with your own "
-                        "response before submitting."
-                    ),
-                    purpose="WARNING",
-                ),
                 Accordion(
                     children=[
                         Column(
                             name=("1. What did you learn technically?"),
                             children=[
-                                Label(text="[Your answer here]"),
+                                Label(text="This semester my proficiency "
+                                "in Python improved significantly. I now "
+                                "understand more about dunder methods, different "
+                                "applications of data structures, and passing variable "
+                                "parameters to functions. I also learned a lot about the "
+                                "DOM and JavaScript engines. In addition, the differences "
+                                "in capabilities between Python and MicroPython became "
+                                "much clearer."),
                             ],
                         ),
                         Column(
                             name=("2. What did you learn professionally?"),
                             children=[
-                                Label(text="[Your answer here]"),
+                                Label(text="Professionally, I developed my skills with " \
+                                "Git, including writing pull requests and contributing " \
+                                "to  open-source projects. I also gained experience " \
+                                "writing test cases in both Python and JavaScript, where " \
+                                "I learned how to verify changes in the DOM and ensure " \
+                                "that classes and properties were applied correctly. In " \
+                                "addition at the beginning of the semester, I also learned " \
+                                "how to use Figma to prototype and demo a feature I was " \
+                                "considering adding to PyScript."),
                             ],
                         ),
                         Column(
@@ -685,7 +684,18 @@ reflection_page = Page(
                                 "did differently?"
                             ),
                             children=[
-                                Label(text="[Your answer here]"),
+                                Label(text="I have no complaints about my advisors/mentors " \
+                                "this semester. Nicholas was outstanding; at the beginning " \
+                                "of the semester he walked me through both the PyScript and " \
+                                "the Invent codebases, showing me how each project is built "
+                                "and deployed. He even sat with me while he pushed a new " \
+                                "release of PyScript, allowing me to see the process of " \
+                                "updating the production code, documentation, and GitHub " \
+                                "Actions usage. Throughout the semester, both he and Chris " \
+                                "took time out of their very busy schedules to have a weekly " \
+                                "meeting with me. These meetings allowed me to voice my " \
+                                "questions and have discussions with folks on call about " \
+                                "goals for the week and other code questions."),
                             ],
                         ),
                         Column(
@@ -693,7 +703,14 @@ reflection_page = Page(
                                 "4. What would you have done " "differently?"
                             ),
                             children=[
-                                Label(text="[Your answer here]"),
+                                Label(text="If I were to redo this semester, I would spend " \
+                                "more time during winter break preparing for the Python and " \
+                                "browser-related work I encountered. I think it would have " \
+                                "been helpful to read more about the DOM and how web pages " \
+                                "are structured in order to better understand some of the " \
+                                "initial PyScript bugs I worked to resolve. That said, Nicholas " \
+                                "did an excellent job helping me learn new Python concepts, " \
+                                "such as **kwargs."),
                             ],
                         ),
                         Column(
@@ -702,7 +719,17 @@ reflection_page = Page(
                                 "would have helped you on the job?"
                             ),
                             children=[
-                                Label(text="[Your answer here]"),
+                                Label(text="In general, I wish Tufts offered more opportunities " \
+                                "for students to work on open-source software. This experience " \
+                                "has been incredibly valuable to me as a computer science student; " \
+                                "I feel that I have learned more this semester about writing " \
+                                "pull requests, the importance of testing, how to write " \
+                                "maintainable and accessible code, and most importantly the power " \
+                                "of a software community. Being able to hear feedback, find bugs, " \
+                                "get help, and discuss code with others is a unique and in fact " \
+                                "fun experience! It is much more engaging to work on a project " \
+                                "like this and interact with professional, motivated software " \
+                                "engineers than to sit in a traditional classroom setting."),
                             ],
                         ),
                     ]
@@ -713,8 +740,7 @@ reflection_page = Page(
 )
 
 
-# -- App --
-
+# The app!
 
 app = invent.App(
     name="Open Source Report — Spring 2026",

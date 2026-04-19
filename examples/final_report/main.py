@@ -1,6 +1,6 @@
 """
-Open Source Contributions Report — Spring 2026, Tufts University CS.
-Built with Invent — one of the two projects contributed to this semester.
+Open Source Contributions Report, Spring 2026.
+Tufts University CS — built with the Invent framework.
 """
 
 import invent
@@ -18,14 +18,63 @@ def navigate(message):
 
 invent.subscribe(navigate, to_channel="navigate", when_subject=["press"])
 
+# Ordered list of (button label, page ID) pairs used to build
+# the navigation header on every page.
+_NAV_PAGES = [
+    ("Home", "cover"),
+    ("PyScript", "pyscript"),
+    ("Invent", "invent_work"),
+    ("Demos", "demos"),
+    ("Mentors", "quotes"),
+    ("Reflect", "reflection"),
+]
 
-def _btn(label, page_id, purpose="PRIMARY"):
-    """Return a navigation Button that targets the given page ID."""
-    return Button(
-        text=label,
-        name=f"{page_id}_btn",
-        purpose=purpose,
-        channel="navigate",
+
+def _nav_header():
+    """
+    Return a new sticky Header with nav buttons.
+
+    Widget instances cannot be shared across pages in Invent, so
+    this factory must be called once per page to create a fresh
+    Header object each time.
+    """
+    return Header(
+        sticky=True,
+        children=[
+            Button(
+                text=label,
+                name=f"{page_id}_btn",
+                purpose="SECONDARY",
+                size="SMALL",
+                channel="navigate",
+            )
+            for label, page_id in _NAV_PAGES
+        ],
+    )
+
+
+def _link(text, url):
+    """Return an Html widget that renders an external hyperlink."""
+    return Html(
+        html=(
+            f'<a href="{url}" target="_blank"'
+            f' rel="noopener noreferrer">{text}</a>'
+        )
+    )
+
+
+def _pr_meta(merged_or_status, additions, deletions, files):
+    """
+    Return an Html widget showing PR metadata as a single line.
+
+    merged_or_status: e.g. 'Merged: Apr 3, 2026' or 'Open — in review'
+    """
+    return Html(
+        html=(
+            f"<p><strong>{merged_or_status}</strong>"
+            f" &nbsp;&bull;&nbsp; +{additions} / -{deletions} lines"
+            f" &nbsp;&bull;&nbsp; {files} files</p>"
+        )
     )
 
 
@@ -37,35 +86,28 @@ cover = Page(
     children=[
         Column(
             children=[
-                Label(
-                    text=(
-                        "# Open Source Contributions Report\n\n"
-                        "**Spring 2026 · Tufts University CS**\n\n"
-                        "William Goldman · "
-                        "[@iliketocode2]"
-                        "(https://github.com/iliketocode2)"
+                _nav_header(),
+                Html(html="<h1>Open Source Contributions Report</h1>"),
+                Html(
+                    html=(
+                        "<p>Spring 2026 &mdash; Tufts University CS<br>"
+                        "William Goldman &nbsp;&bull;&nbsp; "
+                        '<a href="https://github.com/iliketocode2"'
+                        ' target="_blank" rel="noopener noreferrer">'
+                        "@iliketocode2</a></p>"
                     )
                 ),
                 Alert(
                     title="About This Report",
                     text=(
-                        "This report is itself an **Invent** application "
-                        "— one of the two open-source projects I worked on "
-                        "this semester. Use the buttons below to navigate "
-                        "between sections."
+                        "This report is itself an Invent application "
+                        "— one of the two open-source projects I worked "
+                        "on this semester. Use the navigation bar at the "
+                        "top to move between sections."
                     ),
                     purpose="PRIMARY",
                 ),
-                Row(
-                    children=[
-                        _btn("PyScript Work", "pyscript"),
-                        _btn("Invent Work", "invent_work"),
-                        _btn("Live Demos", "demos"),
-                        _btn("Mentors Say...", "quotes"),
-                        _btn("Reflection", "reflection"),
-                    ]
-                ),
-                Label(text="## Semester at a Glance"),
+                Html(html="<h2>Semester at a Glance</h2>"),
                 Table(
                     data=[
                         ["", "PyScript", "Invent"],
@@ -76,17 +118,28 @@ cover = Page(
                         ["Lines added (merged)", "80", "1,353"],
                     ],
                     row_headers=True,
-                    label="Contribution Summary · Spring 2026",
+                    label="Contribution Summary, Spring 2026",
                 ),
                 Alert(
                     title="Two Projects, One Semester",
                     text=(
-                        "**PyScript** is Anaconda's platform for running "
+                        "PyScript is Anaconda's platform for running "
                         "Python in the browser (19k+ GitHub stars). "
-                        "**Invent** is a Python-first browser app framework "
-                        "built on top of PyScript. Both are maintained by "
-                        "many of the same people, which made contributing "
-                        "to both a uniquely cohesive experience."
+                        "Invent is a Python-first browser app framework "
+                        "built on top of PyScript. Both share many of "
+                        "the same maintainers, making the semester feel "
+                        "like working within one cohesive community."
+                    ),
+                    purpose="SECONDARY",
+                ),
+                Alert(
+                    title="Weekly Meetings",
+                    text=(
+                        "Throughout the semester I had weekly meetings "
+                        "with Nicholas Tollervey and my academic advisor "
+                        "Chris. These meetings set the direction for my "
+                        "contributions and provided regular feedback on "
+                        "my progress in both PyScript and Invent."
                     ),
                     purpose="SECONDARY",
                 ),
@@ -99,90 +152,92 @@ cover = Page(
 # -- PyScript Page --
 
 
-pyscript = Page(
+pyscript_page = Page(
     id="pyscript",
     children=[
         Column(
             children=[
-                Label(
-                    text=(
-                        "# PyScript Contributions\n\n"
-                        "[PyScript](https://pyscript.net/) lets you run "
-                        "Python directly in the browser. It has 19,000+ "
-                        "GitHub stars and is maintained by Anaconda."
+                _nav_header(),
+                Html(html="<h1>PyScript Contributions</h1>"),
+                Html(
+                    html=(
+                        "<p>PyScript enables Python in the browser. "
+                        "19,000+ GitHub stars, maintained by Anaconda. "
+                        '<a href="https://pyscript.net/" target="_blank"'
+                        ' rel="noopener noreferrer">pyscript.net</a></p>'
                     )
                 ),
-                Row(
-                    children=[
-                        _btn("← Home", "cover", "SECONDARY"),
-                        _btn("Invent Work →", "invent_work"),
-                    ]
-                ),
-                Label(text="## Merged Pull Requests"),
+                Html(html="<h2>Merged Pull Requests</h2>"),
                 ContentCard(
-                    title=("PR #2447 · Enable str to be appended to Element"),
+                    title=("PR #2447: Enable str to be appended to Element"),
                     purpose="SUCCESS",
                     children=[
+                        _pr_meta("Merged: Feb 4, 2026", 33, 5, 2),
                         Label(
                             text=(
-                                "**Merged:** Feb 4, 2026 "
-                                "· +33 / −5 lines · 2 files changed\n\n"
-                                "Extended `Element.append()` in "
-                                "`pyscript/web.py` to accept plain strings "
-                                "(and other primitives). Previously, passing "
-                                "a string raised a `TypeError`. The fix "
-                                "delegates to the browser's native DOM "
-                                "`append()`, which creates a text node — "
-                                "preserving CSS selectors and layout "
-                                "performance that would break if a `<span>` "
-                                "were used instead.\n\n"
-                                "[View PR on GitHub]"
-                                "(https://github.com/pyscript/pyscript"
-                                "/pull/2447)"
+                                "Extended Element.append() in "
+                                "pyscript/web.py to accept plain strings "
+                                "and other primitives. Previously, passing "
+                                "a string raised a TypeError. The fix uses "
+                                "the browser's native DOM append(), which "
+                                "creates a text node rather than an element"
+                                " node — preserving CSS selectors and "
+                                "layout performance."
                             )
                         ),
                         Code(
                             code=(
-                                "# The final fix — native DOM append\n"
-                                "# handles primitives as text nodes:\n"
-                                "elif isinstance(item, "
-                                "(str, int, float, bool)):\n"
+                                "# Native DOM append creates a text node:\n"
+                                "elif isinstance(\n"
+                                "    item, (str, int, float, bool)\n"
+                                "):\n"
                                 "    self._dom_element.append(item)"
                             )
                         ),
-                    ],
-                ),
-                ContentCard(
-                    title=("PR #2455 · Fix ElementCollection.update_all"),
-                    purpose="SUCCESS",
-                    children=[
-                        Label(
-                            text=(
-                                "**Merged:** Feb 25, 2026 "
-                                "· +47 / −4 lines · 2 files changed\n\n"
-                                "`update_all` was using `setattr()` "
-                                "directly, bypassing `Element.update()`'s "
-                                "class and style handling. Passing "
-                                "`classes='active'` via `update_all` would "
-                                "overwrite the attribute instead of calling "
-                                "`self.classes.add()`. This PR routes all "
-                                "calls through `element.update()` — fixing "
-                                "the bug and removing duplicated logic.\n\n"
-                                "Corresponding docs PR: "
-                                "[pyscript/docs #214]"
-                                "(https://github.com/pyscript/docs"
-                                "/pull/214)\n\n"
-                                "[View PR on GitHub]"
-                                "(https://github.com/pyscript/pyscript"
-                                "/pull/2455)"
-                            )
+                        _link(
+                            "View PR #2447 on GitHub",
+                            "https://github.com/pyscript/pyscript"
+                            "/pull/2447",
                         ),
                     ],
                 ),
-                Label(text="## Discussion Started"),
+                ContentCard(
+                    title=("PR #2455: Fix ElementCollection.update_all"),
+                    purpose="SUCCESS",
+                    children=[
+                        _pr_meta("Merged: Feb 25, 2026", 47, 4, 2),
+                        Label(
+                            text=(
+                                "update_all was using setattr() directly,"
+                                " bypassing Element.update()'s class and "
+                                "style handling. Passing classes='active' "
+                                "via update_all would overwrite the "
+                                "attribute instead of calling "
+                                "self.classes.add(). This PR routes all "
+                                "calls through element.update() to fix the"
+                                " bug and remove duplicated logic."
+                            )
+                        ),
+                        Row(
+                            children=[
+                                _link(
+                                    "View PR #2455 on GitHub",
+                                    "https://github.com/pyscript/pyscript"
+                                    "/pull/2455",
+                                ),
+                                _link(
+                                    "Docs PR #214",
+                                    "https://github.com/pyscript/docs"
+                                    "/pull/214",
+                                ),
+                            ]
+                        ),
+                    ],
+                ),
+                Html(html="<h2>Discussion Started</h2>"),
                 ContentCard(
                     title=(
-                        "Discussion #2453 · "
+                        "Discussion #2453: "
                         "Improving ElementCollection.update_all"
                     ),
                     purpose="PRIMARY",
@@ -191,78 +246,77 @@ pyscript = Page(
                             text=(
                                 "Before opening PR #2455, I started a "
                                 "public design discussion to confirm the "
-                                "approach with maintainers Nicholas Tollervey"
-                                " and Andrea Giammarchi. The thread also "
-                                "surfaced a broader question about whether "
-                                "PyScript's web API should stay 'Pythonic' "
-                                "(sets/dicts for classes/styles) or lean "
-                                "into native DOM APIs like `classList` — a "
-                                "debate that reflects the core tension in "
-                                "PyScript's design philosophy.\n\n"
-                                "[View Discussion]"
-                                "(https://github.com/pyscript/pyscript"
-                                "/discussions/2453)"
+                                "approach with maintainers Nicholas "
+                                "Tollervey and Andrea Giammarchi. The "
+                                "thread also surfaced a broader question "
+                                "about whether PyScript's web API should "
+                                "stay Pythonic (sets/dicts for classes and"
+                                " styles) or lean into native DOM APIs "
+                                "like classList."
                             )
+                        ),
+                        _link(
+                            "View Discussion #2453 on GitHub",
+                            "https://github.com/pyscript/pyscript"
+                            "/discussions/2453",
                         ),
                     ],
                 ),
-                Label(text="## Community Issue Triage"),
+                Html(html="<h2>Community Issue Triage</h2>"),
                 Accordion(
                     children=[
                         Column(
                             name=(
-                                "Issue #2466 · "
+                                "Issue #2466: "
                                 "Try block indentation inconsistency"
                             ),
                             children=[
                                 Label(
                                     text=(
-                                        "A user reported that `try` blocks "
-                                        "inside `<script type='py'>` tags "
-                                        "failed unless indented with tabs. "
-                                        "I investigated, traced the behaviour "
-                                        "to the [codedent]"
-                                        "(https://github.com/WebReflection"
-                                        "/codedent) library's first-line "
-                                        "strip logic, and explained why it "
-                                        "is consistent with Python's own "
-                                        "indentation rules. The issue was "
-                                        "resolved as expected behaviour, not "
-                                        "a bug in PyScript itself.\n\n"
-                                        "[View Issue]"
-                                        "(https://github.com/pyscript/pyscript"
-                                        "/issues/2466)"
+                                        "A user reported that try blocks "
+                                        "inside script tags failed unless "
+                                        "indented with tabs. I investigated"
+                                        " and traced the behaviour to the "
+                                        "codedent library's first-line strip"
+                                        " logic, which is consistent with "
+                                        "Python's own indentation rules. "
+                                        "Resolved as expected behaviour."
                                     )
+                                ),
+                                _link(
+                                    "View Issue #2466 on GitHub",
+                                    "https://github.com/pyscript/pyscript"
+                                    "/issues/2466",
                                 ),
                             ],
                         ),
                         Column(
                             name=(
-                                "Issue #2464 · "
+                                "Issue #2464: "
                                 "Matplotlib regression in py-editor"
                             ),
                             children=[
                                 Label(
                                     text=(
-                                        "A user found that matplotlib stopped"
-                                        " rendering in `py-editor` after "
-                                        "PyScript 2025.8.1. I diffed the "
-                                        "releases and traced the regression "
-                                        "to a change in `ffi.py` that "
-                                        "replaced `value is None` checks "
-                                        "with a `jsnull` comparison. In a "
-                                        "worker context, JS null values were "
-                                        "arriving as `jsnull` instead of "
-                                        "`None`, causing null checks to fail "
-                                        "silently. Maintainer Andrea "
-                                        "Giammarchi confirmed the root cause "
-                                        "and referenced the "
-                                        "`pyscript.ffi.is_none` API that was "
-                                        "added as a mitigation.\n\n"
-                                        "[View Issue]"
-                                        "(https://github.com/pyscript/pyscript"
-                                        "/issues/2464)"
+                                        "A user found that matplotlib "
+                                        "stopped rendering in py-editor "
+                                        "after PyScript 2025.8.1. I diffed "
+                                        "the releases and traced the issue "
+                                        "to a change in ffi.py that replaced"
+                                        " 'value is None' checks with a "
+                                        "jsnull comparison. In a worker "
+                                        "context, JS null values were "
+                                        "arriving as jsnull instead of None."
+                                        " Maintainer Andrea Giammarchi "
+                                        "confirmed the root cause and "
+                                        "referenced pyscript.ffi.is_none "
+                                        "as a mitigation."
                                     )
+                                ),
+                                _link(
+                                    "View Issue #2464 on GitHub",
+                                    "https://github.com/pyscript/pyscript"
+                                    "/issues/2464",
                                 ),
                             ],
                         ),
@@ -277,168 +331,182 @@ pyscript = Page(
 # -- Invent Work Page --
 
 
-invent_work = Page(
+invent_work_page = Page(
     id="invent_work",
     children=[
         Column(
             children=[
-                Label(
-                    text=(
-                        "# Invent Contributions\n\n"
-                        "[Invent](https://inventframework.org/) is a "
-                        "Python-first browser app framework built on "
-                        "PyScript. This page you are reading right now "
-                        "is itself an Invent app."
+                _nav_header(),
+                Html(html="<h1>Invent Contributions</h1>"),
+                Html(
+                    html=(
+                        "<p>Invent is a Python-first browser app framework"
+                        " built on PyScript. The page you are reading "
+                        "right now is itself an Invent app. "
+                        '<a href="https://inventframework.org/"'
+                        ' target="_blank" rel="noopener noreferrer">'
+                        "inventframework.org</a></p>"
                     )
                 ),
-                Row(
-                    children=[
-                        _btn("← PyScript", "pyscript", "SECONDARY"),
-                        _btn("Live Demos →", "demos"),
-                    ]
-                ),
-                Label(text="## Merged Pull Requests"),
+                Html(html="<h2>Merged Pull Requests</h2>"),
                 ContentCard(
-                    title="PR #142 · Divider Widget",
+                    title="PR #142: Divider Widget",
                     purpose="SUCCESS",
                     children=[
+                        _pr_meta("Merged: Mar 10, 2026", 84, 7, 4),
                         Label(
                             text=(
-                                "**Merged:** Mar 10, 2026 "
-                                "· +84 / −7 lines · 4 files\n\n"
-                                "Added a `Divider` widget that separates "
-                                "items in a `Row` (vertical) or a `Column` "
-                                "(horizontal). The challenge: `render()` is "
-                                "called before `_parent` is assigned, so "
-                                "orientation cannot be determined at render "
-                                "time. Solved by overriding the `parent` "
-                                "setter and resolving orientation there.\n\n"
-                                "[View PR]"
-                                "(https://github.com/invent-framework"
-                                "/invent/pull/142)"
+                                "Added a Divider widget that separates "
+                                "items in a Row (renders vertically) or a "
+                                "Column (renders horizontally). The "
+                                "challenge: render() is called before "
+                                "_parent is assigned, so orientation cannot"
+                                " be determined at render time. Solved by "
+                                "overriding the parent setter and resolving "
+                                "orientation there."
                             )
+                        ),
+                        _link(
+                            "View PR #142 on GitHub",
+                            "https://github.com/invent-framework"
+                            "/invent/pull/142",
                         ),
                     ],
                 ),
                 ContentCard(
-                    title="PR #143 · Rating Widget (v1)",
+                    title="PR #143: Rating Widget (v1)",
                     purpose="SUCCESS",
                     children=[
+                        _pr_meta("Merged: Mar 10, 2026", 327, 6, 4),
                         Label(
                             text=(
-                                "**Merged:** Mar 10, 2026 "
-                                "· +327 / −6 lines · 4 files\n\n"
-                                "Added a `Rating` widget with half-star "
+                                "Added a Rating widget with half-star "
                                 "precision. Each star is split into "
                                 "invisible left and right click zones: "
-                                "clicking the left half scores `i − 0.5`, "
-                                "the right scores `i`. Supports 3, 5, or "
+                                "the left half scores i minus 0.5, the "
+                                "right half scores i. Supports 3, 5, or "
                                 "10 stars, read-only mode, and a brief "
-                                "popup animation when the value changes.\n\n"
-                                "[View PR]"
-                                "(https://github.com/invent-framework"
-                                "/invent/pull/143)"
+                                "popup animation when the value changes."
                             )
+                        ),
+                        _link(
+                            "View PR #143 on GitHub",
+                            "https://github.com/invent-framework"
+                            "/invent/pull/143",
                         ),
                     ],
                 ),
                 ContentCard(
-                    title="PR #144 · Rating Widget (v2 — Fixes)",
+                    title="PR #144: Rating Widget (v2 — Fixes)",
                     purpose="SUCCESS",
                     children=[
+                        _pr_meta("Merged: Mar 16, 2026", 76, 65, 3),
                         Label(
                             text=(
-                                "**Merged:** Mar 16, 2026 "
-                                "· +76 / −65 lines · 3 files\n\n"
-                                "Follow-up refinements to the Rating "
-                                "widget: added 1-star support, zero-star "
-                                "selection, configurable step size as a "
-                                "`ChoiceProperty`, an optional numeric "
-                                "label, and a cursor-pointer hover effect "
-                                "on 1-star mode.\n\n"
-                                "[View PR]"
-                                "(https://github.com/invent-framework"
-                                "/invent/pull/144)"
+                                "Follow-up refinements: added 1-star "
+                                "support, zero-star selection, configurable"
+                                " step size as a ChoiceProperty, an "
+                                "optional numeric label, and a "
+                                "cursor-pointer hover effect on 1-star "
+                                "mode."
                             )
+                        ),
+                        _link(
+                            "View PR #144 on GitHub",
+                            "https://github.com/invent-framework"
+                            "/invent/pull/144",
                         ),
                     ],
                 ),
                 ContentCard(
-                    title="PR #145 · Webcam Widget",
+                    title="PR #145: Webcam Widget",
                     purpose="SUCCESS",
                     children=[
+                        _pr_meta("Merged: Apr 3, 2026", 693, 2, 5),
                         Label(
                             text=(
-                                "**Merged:** Apr 3, 2026 "
-                                "· +693 / −2 lines · 5 files\n\n"
-                                "Added a `Webcam` widget with three modes:"
-                                " `photo`, `video`, and `both`. Uses "
-                                "`getUserMedia()` for the live feed, a "
-                                "hidden `<canvas>` for frame capture (via "
-                                "`drawImage()`), and `MediaRecorder` for "
-                                "video. Captured media is downloaded via a "
-                                "temporary `<a>` element. The widget also "
-                                "publishes `photo_captured` and "
-                                "`video_recorded` events for reactive use."
-                                "\n\nOriginal implementation reference: "
-                                "[Infania's component library]"
-                                "(https://infania.pyscriptapps.com"
-                                "/componentize/latest/index.html)\n\n"
-                                "[View PR]"
-                                "(https://github.com/invent-framework"
-                                "/invent/pull/145)"
+                                "Added a Webcam widget with photo, video, "
+                                "and both modes. Uses getUserMedia() for "
+                                "the live feed, a hidden canvas for frame "
+                                "capture via drawImage(), and MediaRecorder"
+                                " for video recording. Captured media is "
+                                "downloaded via a temporary anchor element."
+                                " The widget publishes photo_captured and "
+                                "video_recorded events. Original "
+                                "implementation reference: Infania's "
+                                "component library."
                             )
+                        ),
+                        Row(
+                            children=[
+                                _link(
+                                    "View PR #145 on GitHub",
+                                    "https://github.com/invent-framework"
+                                    "/invent/pull/145",
+                                ),
+                                _link(
+                                    "Infania's component library",
+                                    "https://infania.pyscriptapps.com"
+                                    "/componentize/latest/index.html",
+                                ),
+                            ]
                         ),
                     ],
                 ),
                 ContentCard(
-                    title="PR #146 · Min/Max Naming Standardization",
+                    title="PR #146: Min/Max Naming Standardization",
                     purpose="SUCCESS",
                     children=[
+                        _pr_meta("Merged: Apr 10, 2026", 173, 162, 10),
                         Label(
                             text=(
-                                "**Merged:** Apr 10, 2026 "
-                                "· +173 / −162 lines · 10 files\n\n"
                                 "Standardized min/max property naming "
                                 "across Invent: numeric and date ranges "
-                                "now use `min_value`/`max_value`; string "
-                                "constraints use `min_length`/`max_length`."
-                                " Updated `property.py`, `slider.py`, "
-                                "`rating.py`, `textinput.py`, `carousel.py`"
-                                ", and all related tests and examples.\n\n"
-                                "[View PR]"
-                                "(https://github.com/invent-framework"
-                                "/invent/pull/146)"
+                                "now use min_value/max_value; string "
+                                "constraints use min_length/max_length. "
+                                "Updated property.py, slider.py, "
+                                "rating.py, textinput.py, carousel.py, "
+                                "and all related tests and examples."
                             )
+                        ),
+                        _link(
+                            "View PR #146 on GitHub",
+                            "https://github.com/invent-framework"
+                            "/invent/pull/146",
                         ),
                     ],
                 ),
                 ContentCard(
-                    title=(
-                        "PR #147 · Webcam + OpenCV Playground " "(In Review)"
-                    ),
+                    title=("PR #147: Webcam + OpenCV Playground (In Review)"),
                     purpose="WARNING",
                     children=[
+                        Html(
+                            html=(
+                                "<p><strong>Open — pending review"
+                                "</strong> &nbsp;&bull;&nbsp;"
+                                " +702 / -112 lines"
+                                " &nbsp;&bull;&nbsp; 9 files</p>"
+                            )
+                        ),
                         Label(
                             text=(
-                                "**Status:** Open — pending review\n"
-                                "+702 / −112 lines · 9 files changed\n\n"
-                                "Extends `Webcam` with a `preview_layout` "
-                                "property (`stacked` | `side-by-side`) and "
-                                "a `show_image()` method that pushes any "
-                                "data URL into the preview panel. Also adds"
-                                " an **OpenCV Playground** example: users "
-                                "write Python OpenCV code in a `CodeEditor`"
-                                " widget and run it against a live camera "
-                                "feed using PyScript's Donkey (worker) "
-                                "pattern.\n\n"
-                                "**Not yet ready to merge:** the OpenCV "
-                                "example page needs to be separated from "
-                                "the widget changes before merging.\n\n"
-                                "[View PR]"
-                                "(https://github.com/invent-framework"
-                                "/invent/pull/147)"
+                                "Extends Webcam with a preview_layout "
+                                "property (stacked or side-by-side) and "
+                                "a show_image() method that pushes any "
+                                "data URL into the preview panel. Adds an "
+                                "OpenCV Playground example where users "
+                                "write Python OpenCV code in a CodeEditor "
+                                "and run it against a live camera feed "
+                                "using PyScript's Donkey (worker) pattern."
+                                " Not yet merged: the example page and "
+                                "widget changes need to be split into "
+                                "separate PRs first."
                             )
+                        ),
+                        _link(
+                            "View PR #147 on GitHub",
+                            "https://github.com/invent-framework"
+                            "/invent/pull/147",
                         ),
                     ],
                 ),
@@ -451,25 +519,20 @@ invent_work = Page(
 # -- Live Demos Page --
 
 
-demos = Page(
+demos_page = Page(
     id="demos",
     children=[
         Column(
             children=[
-                Label(text="# Live Widget Demos"),
+                _nav_header(),
+                Html(html="<h1>Live Widget Demos</h1>"),
                 Label(
                     text=(
-                        "The widgets below were contributed this semester. "
-                        "They are rendered live — this is not a screenshot."
+                        "The widgets below were contributed this semester."
+                        " They are rendered live — not a screenshot."
                     )
                 ),
-                Row(
-                    children=[
-                        _btn("← Invent Work", "invent_work", "SECONDARY"),
-                        _btn("Mentors Say... →", "quotes"),
-                    ]
-                ),
-                Label(text="## Rating Widget"),
+                Html(html="<h2>Rating Widget</h2>"),
                 Label(
                     text=(
                         "Supports 1, 3, 5, or 10 stars with optional "
@@ -485,7 +548,7 @@ demos = Page(
                 ),
                 Row(
                     children=[
-                        Label(text="10-star read-only (value: 7.5):"),
+                        Label(text="10-star read-only (value 7.5):"),
                         Rating(
                             value=7.5,
                             step="0.5",
@@ -506,11 +569,11 @@ demos = Page(
                     ]
                 ),
                 Divider(),
-                Label(text="## Webcam Widget"),
+                Html(html="<h2>Webcam Widget</h2>"),
                 Label(
                     text=(
-                        "Supports `photo`, `video`, and `both` modes. "
-                        "The widget below is in `photo` mode — press the "
+                        "Supports photo, video, and both modes. "
+                        "The widget below is in photo mode — press the "
                         "shutter button to capture a still frame."
                     )
                 ),
@@ -524,26 +587,21 @@ demos = Page(
 # -- Quotes Page --
 
 
-quotes = Page(
+quotes_page = Page(
     id="quotes",
     children=[
         Column(
             children=[
-                Label(text="# What My Mentors Said"),
+                _nav_header(),
+                Html(html="<h1>What My Mentors Said</h1>"),
                 Alert(
-                    title="Placeholders",
+                    title="Quotes coming soon",
                     text=(
-                        "Actual quotes will be added here once gathered. "
-                        "The speech bubbles below use placeholder text."
+                        "Actual quotes will be added once gathered. "
+                        "The speech bubbles below are placeholders."
                     ),
                     purpose="WARNING",
                     dismissable=True,
-                ),
-                Row(
-                    children=[
-                        _btn("← Live Demos", "demos", "SECONDARY"),
-                        _btn("Reflection →", "reflection"),
-                    ]
                 ),
                 Timeline(
                     children=[
@@ -553,10 +611,9 @@ quotes = Page(
                             direction="received",
                             timestamp=datetime(2026, 4, 18),
                             content=(
-                                "*[Quote from Nicholas Tollervey "
-                                "(ntoll) — Invent maintainer and "
-                                "PyScript core contributor. "
-                                "To be added.]*"
+                                "[Quote from Nicholas Tollervey — "
+                                "Invent maintainer and PyScript core "
+                                "contributor. To be added.]"
                             ),
                         ),
                         ChatBubble(
@@ -567,18 +624,8 @@ quotes = Page(
                             direction="received",
                             timestamp=datetime(2026, 4, 18),
                             content=(
-                                "*[Quote from Andrea Giammarchi "
-                                "(WebReflection) — PyScript core "
-                                "maintainer. To be added.]*"
-                            ),
-                        ),
-                        ChatBubble(
-                            author_name="Chris [TBD]",
-                            direction="received",
-                            timestamp=datetime(2026, 4, 18),
-                            content=(
-                                "*[Quote from Chris — identity to be "
-                                "confirmed. To be added.]*"
+                                "[Quote from Andrea Giammarchi — "
+                                "PyScript core maintainer. To be added.]"
                             ),
                         ),
                         ChatBubble(
@@ -586,10 +633,9 @@ quotes = Page(
                             direction="received",
                             timestamp=datetime(2026, 4, 18),
                             content=(
-                                "*[Quote from Infania — contributor "
-                                "whose webcam component library served "
-                                "as the reference for PR #145. "
-                                "To be added.]*"
+                                "[Quote from Infania — contributor whose "
+                                "webcam component library served as the "
+                                "reference for PR #145. To be added.]"
                             ),
                         ),
                     ]
@@ -603,38 +649,34 @@ quotes = Page(
 # -- Reflection Page --
 
 
-reflection = Page(
+reflection_page = Page(
     id="reflection",
     children=[
         Column(
             children=[
-                Label(
-                    text=(
-                        "# Reflection\n\n"
-                        "Tufts CS practicum reflection questions."
-                    )
-                ),
+                _nav_header(),
+                Html(html="<h1>Reflection</h1>"),
+                Label(text="Tufts CS practicum reflection questions."),
                 Alert(
                     title="Draft — answers not yet filled in",
                     text=(
-                        "Replace each placeholder with your own response "
-                        "before submitting."
+                        "Replace each placeholder with your own "
+                        "response before submitting."
                     ),
                     purpose="WARNING",
                 ),
-                _btn("← Mentors Say...", "quotes", "SECONDARY"),
                 Accordion(
                     children=[
                         Column(
-                            name="1. What did you learn technically?",
+                            name=("1. What did you learn technically?"),
                             children=[
-                                Label(text="*[Your answer here]*"),
+                                Label(text="[Your answer here]"),
                             ],
                         ),
                         Column(
-                            name="2. What did you learn professionally?",
+                            name=("2. What did you learn professionally?"),
                             children=[
-                                Label(text="*[Your answer here]*"),
+                                Label(text="[Your answer here]"),
                             ],
                         ),
                         Column(
@@ -643,13 +685,15 @@ reflection = Page(
                                 "did differently?"
                             ),
                             children=[
-                                Label(text="*[Your answer here]*"),
+                                Label(text="[Your answer here]"),
                             ],
                         ),
                         Column(
-                            name=("4. What would you have done differently?"),
+                            name=(
+                                "4. What would you have done " "differently?"
+                            ),
                             children=[
-                                Label(text="*[Your answer here]*"),
+                                Label(text="[Your answer here]"),
                             ],
                         ),
                         Column(
@@ -658,7 +702,7 @@ reflection = Page(
                                 "would have helped you on the job?"
                             ),
                             children=[
-                                Label(text="*[Your answer here]*"),
+                                Label(text="[Your answer here]"),
                             ],
                         ),
                     ]
@@ -676,11 +720,11 @@ app = invent.App(
     name="Open Source Report — Spring 2026",
     pages=[
         cover,
-        pyscript,
-        invent_work,
-        demos,
-        quotes,
-        reflection,
+        pyscript_page,
+        invent_work_page,
+        demos_page,
+        quotes_page,
+        reflection_page,
     ],
 )
 

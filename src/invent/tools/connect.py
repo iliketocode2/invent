@@ -739,14 +739,11 @@ class _InventSerial:
         dlen = len(delimiter)
         pos = self._read_buffer.find(delimiter)
         while pos != -1:
-            line = bytes(self._read_buffer[:pos + dlen])
-            self._read_buffer = bytearray(
-                self._read_buffer[pos + dlen:]
-            )
+            line = bytes(self._read_buffer[: pos + dlen])
+            self._read_buffer = bytearray(self._read_buffer[pos + dlen :])
             text = line.decode(self._encoding)
             self._publish_message(text)
             pos = self._read_buffer.find(delimiter)
-
 
     def _handle_send(self, message):
         """
@@ -1175,9 +1172,7 @@ class _InventBLE:
             request_options["filters"] = self._filters
         else:
             # No developer filters: default to the channel's service.
-            request_options["filters"] = [
-                {"services": [self._service_uuid]}
-            ]
+            request_options["filters"] = [{"services": [self._service_uuid]}]
         try:
             return await bluetooth.requestDevice(to_js(request_options))
         except Exception:

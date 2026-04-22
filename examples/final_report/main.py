@@ -623,13 +623,17 @@ quotes_page = Page(
                             ),
                         ),
                         ChatBubble(
-                            author_name="Infania",
+                            author_name="Chris Rogers",
                             direction="received",
-                            timestamp=datetime(2026, 4, 18),
+                            timestamp=datetime(2026, 4, 21),
                             content=(
-                                "[Quote from Infania — contributor whose "
-                                "webcam component library served as the "
-                                "reference for PR #145. To be added.]"
+                                "Will has done a great job of jumping into the" 
+                                " deep end, learning on his own, and developing "
+                                "many substantive changes to a new open source "
+                                "library aimed at making interactive web pages easier "
+                                "to build.  He has learned how one works in the open "
+                                "source world, from effective GitHub use to interacting "
+                                "with the local Python group."
                             ),
                         ),
                     ]

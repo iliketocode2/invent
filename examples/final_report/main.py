@@ -588,15 +588,6 @@ quotes_page = Page(
             children=[
                 _nav_header(),
                 Html(html="<h1>What My Mentors Said</h1>"),
-                Alert(
-                    title="Quotes coming soon",
-                    text=(
-                        "Actual quotes will be added once gathered. "
-                        "The speech bubbles below are placeholders."
-                    ),
-                    purpose="WARNING",
-                    dismissable=True,
-                ),
                 Timeline(
                     children=[
                         ChatBubble(
@@ -624,10 +615,13 @@ quotes_page = Page(
                         ),
                         ChatBubble(
                             author_name="Chris Rogers",
+                            author_image=(
+                                "https://engineering.tufts.edu/me/sites/g/files/lrezom586/files/styles/large/public/crogers.png?itok=xUgfCQPh"
+                            ),
                             direction="received",
                             timestamp=datetime(2026, 4, 21),
                             content=(
-                                "Will has done a great job of jumping into the" 
+                                "Will has done a great job of jumping into the"
                                 " deep end, learning on his own, and developing "
                                 "many substantive changes to a new open source "
                                 "library aimed at making interactive web pages easier "

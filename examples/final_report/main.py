@@ -7,6 +7,8 @@ import invent
 from invent.ui import *
 from datetime import datetime
 
+await invent.setup()
+
 
 def navigate(message):
     """Route 'navigate' channel press events to the named page."""
@@ -49,31 +51,6 @@ def _nav_header():
     )
 
 
-def _link(text, url):
-    """Return an Html widget that renders an external hyperlink."""
-    return Html(
-        html=(
-            f'<a href="{url}" target="_blank"'
-            f' rel="noopener noreferrer">{text}</a>'
-        )
-    )
-
-
-def _pr_meta(merged_or_status, additions, deletions, files):
-    """
-    Return an Html widget showing PR metadata as a single line.
-
-    merged_or_status: e.g. 'Merged: Apr 3, 2026' or 'Open — in review'
-    """
-    return Html(
-        html=(
-            f"<p><strong>{merged_or_status}</strong>"
-            f" &nbsp;&bull;&nbsp; +{additions} / -{deletions} lines"
-            f" &nbsp;&bull;&nbsp; {files} files</p>"
-        )
-    )
-
-
 # -- Cover Page --
 
 
@@ -83,14 +60,12 @@ cover = Page(
         Column(
             children=[
                 _nav_header(),
-                Html(html="<h1>Open Source Contributions Report</h1>"),
-                Html(
-                    html=(
-                        "<p>Spring 2026 &mdash; Tufts University CS<br>"
-                        "William Goldman &nbsp;&bull;&nbsp; "
-                        '<a href="https://github.com/iliketocode2"'
-                        ' target="_blank" rel="noopener noreferrer">'
-                        "@iliketocode2</a></p>"
+                Label(text="# Open Source Contributions Report"),
+                Label(
+                    text=(
+                        "Spring 2026 - Tufts University CS\n\n"
+                        "William Goldman - "
+                        "[@iliketocode2](https://github.com/iliketocode2)"
                     )
                 ),
                 Alert(
@@ -103,7 +78,7 @@ cover = Page(
                     ),
                     purpose="PRIMARY",
                 ),
-                Html(html="<h2>Semester at a Glance</h2>"),
+                Label(text="## Semester at a Glance"),
                 Table(
                     data=[
                         ["", "PyScript", "Invent"],
@@ -152,21 +127,22 @@ pyscript_page = Page(
         Column(
             children=[
                 _nav_header(),
-                Html(html="<h1>PyScript Contributions</h1>"),
-                Html(
-                    html=(
-                        "<p>PyScript enables Python in the browser. "
+                Label(text="# PyScript Contributions"),
+                Label(
+                    text=(
+                        "PyScript enables Python in the browser. "
                         "19,000+ GitHub stars, maintained by Anaconda. "
-                        '<a href="https://pyscript.net/" target="_blank"'
-                        ' rel="noopener noreferrer">pyscript.net</a></p>'
+                        "[pyscript.net](https://pyscript.net/)"
                     )
                 ),
-                Html(html="<h2>Merged Pull Requests</h2>"),
+                Label(text="## Merged Pull Requests"),
                 ContentCard(
                     title=("PR #2447: Enable str to be appended to Element"),
                     purpose="SUCCESS",
                     children=[
-                        _pr_meta("Merged: Feb 4, 2026", 33, 5, 2),
+                        Label(
+                            text="**Merged: Feb 4, 2026** - +33 / -5 lines - 2 files"
+                        ),
                         Label(
                             text=(
                                 "Extended Element.append() in "
@@ -187,10 +163,8 @@ pyscript_page = Page(
                                 "    self._dom_element.append(item)"
                             )
                         ),
-                        _link(
-                            "View PR #2447 on GitHub",
-                            "https://github.com/pyscript/pyscript"
-                            "/pull/2447",
+                        Label(
+                            text="[View PR #2447 on GitHub](https://github.com/pyscript/pyscript/pull/2447)"
                         ),
                     ],
                 ),
@@ -198,7 +172,9 @@ pyscript_page = Page(
                     title=("PR #2455: Fix ElementCollection.update_all"),
                     purpose="SUCCESS",
                     children=[
-                        _pr_meta("Merged: Feb 25, 2026", 47, 4, 2),
+                        Label(
+                            text="**Merged: Feb 25, 2026** - +47 / -4 lines - 2 files"
+                        ),
                         Label(
                             text=(
                                 "update_all was using setattr() directly,"
@@ -213,21 +189,17 @@ pyscript_page = Page(
                         ),
                         Row(
                             children=[
-                                _link(
-                                    "View PR #2455 on GitHub",
-                                    "https://github.com/pyscript/pyscript"
-                                    "/pull/2455",
+                                Label(
+                                    text="[View PR #2455 on GitHub](https://github.com/pyscript/pyscript/pull/2455)"
                                 ),
-                                _link(
-                                    "Docs PR #214",
-                                    "https://github.com/pyscript/docs"
-                                    "/pull/214",
+                                Label(
+                                    text="[Docs PR #214](https://github.com/pyscript/docs/pull/214)"
                                 ),
                             ]
                         ),
                     ],
                 ),
-                Html(html="<h2>Discussion Started</h2>"),
+                Label(text="## Discussion Started"),
                 ContentCard(
                     title=(
                         "Discussion #2453: "
@@ -248,14 +220,12 @@ pyscript_page = Page(
                                 "like classList."
                             )
                         ),
-                        _link(
-                            "View Discussion #2453 on GitHub",
-                            "https://github.com/pyscript/pyscript"
-                            "/discussions/2453",
+                        Label(
+                            text="[View Discussion #2453 on GitHub](https://github.com/pyscript/pyscript/discussions/2453)"
                         ),
                     ],
                 ),
-                Html(html="<h2>Community Issue Triage</h2>"),
+                Label(text="## Community Issue Triage"),
                 Accordion(
                     children=[
                         Column(
@@ -276,10 +246,8 @@ pyscript_page = Page(
                                         "Resolved as expected behaviour."
                                     )
                                 ),
-                                _link(
-                                    "View Issue #2466 on GitHub",
-                                    "https://github.com/pyscript/pyscript"
-                                    "/issues/2466",
+                                Label(
+                                    text="[View Issue #2466 on GitHub](https://github.com/pyscript/pyscript/issues/2466)"
                                 ),
                             ],
                         ),
@@ -306,10 +274,8 @@ pyscript_page = Page(
                                         "as a mitigation."
                                     )
                                 ),
-                                _link(
-                                    "View Issue #2464 on GitHub",
-                                    "https://github.com/pyscript/pyscript"
-                                    "/issues/2464",
+                                Label(
+                                    text="[View Issue #2464 on GitHub](https://github.com/pyscript/pyscript/issues/2464)"
                                 ),
                             ],
                         ),
@@ -330,24 +296,24 @@ invent_work_page = Page(
         Column(
             children=[
                 _nav_header(),
-                Html(html="<h1>Invent Contributions</h1>"),
-                Html(
-                    html=(
-                        "<p>Invent is a Python-first browser app framework"
-                        " built on PyScript. The page you are reading "
-                        "right now is itself an Invent app! Invent is"
+                Label(text="# Invent Contributions"),
+                Label(
+                    text=(
+                        "Invent is a Python-first browser app framework "
+                        "built on PyScript. The page you are reading "
+                        "right now is itself an Invent app! Invent is "
                         "originally created by Nicholas Tollervey. "
-                        '<a href="https://inventframework.org/"'
-                        ' target="_blank" rel="noopener noreferrer">'
-                        "inventframework.org</a></p>"
+                        "[inventframework.org](https://inventframework.org/)"
                     )
                 ),
-                Html(html="<h2>Merged Pull Requests</h2>"),
+                Label(text="## Merged Pull Requests"),
                 ContentCard(
                     title="PR #142: Divider Widget",
                     purpose="SUCCESS",
                     children=[
-                        _pr_meta("Merged: Mar 10, 2026", 84, 7, 4),
+                        Label(
+                            text="**Merged: Mar 10, 2026** - +84 / -7 lines - 4 files"
+                        ),
                         Label(
                             text=(
                                 "Added a Divider widget that separates "
@@ -360,10 +326,8 @@ invent_work_page = Page(
                                 "orientation there."
                             )
                         ),
-                        _link(
-                            "View PR #142 on GitHub",
-                            "https://github.com/invent-framework"
-                            "/invent/pull/142",
+                        Label(
+                            text="[View PR #142 on GitHub](https://github.com/invent-framework/invent/pull/142)"
                         ),
                     ],
                 ),
@@ -371,7 +335,9 @@ invent_work_page = Page(
                     title="PR #143: Rating Widget (v1)",
                     purpose="SUCCESS",
                     children=[
-                        _pr_meta("Merged: Mar 10, 2026", 327, 6, 4),
+                        Label(
+                            text="**Merged: Mar 10, 2026** - +327 / -6 lines - 4 files"
+                        ),
                         Label(
                             text=(
                                 "Added a Rating widget with half-star "
@@ -383,10 +349,8 @@ invent_work_page = Page(
                                 "popup animation when the value changes."
                             )
                         ),
-                        _link(
-                            "View PR #143 on GitHub",
-                            "https://github.com/invent-framework"
-                            "/invent/pull/143",
+                        Label(
+                            text="[View PR #143 on GitHub](https://github.com/invent-framework/invent/pull/143)"
                         ),
                     ],
                 ),
@@ -394,7 +358,9 @@ invent_work_page = Page(
                     title="PR #144: Rating Widget (v2 — Fixes)",
                     purpose="SUCCESS",
                     children=[
-                        _pr_meta("Merged: Mar 16, 2026", 76, 65, 3),
+                        Label(
+                            text="**Merged: Mar 16, 2026** - +76 / -65 lines - 3 files"
+                        ),
                         Label(
                             text=(
                                 "Follow-up refinements: added 1-star "
@@ -405,10 +371,8 @@ invent_work_page = Page(
                                 "mode."
                             )
                         ),
-                        _link(
-                            "View PR #144 on GitHub",
-                            "https://github.com/invent-framework"
-                            "/invent/pull/144",
+                        Label(
+                            text="[View PR #144 on GitHub](https://github.com/invent-framework/invent/pull/144)"
                         ),
                     ],
                 ),
@@ -416,7 +380,9 @@ invent_work_page = Page(
                     title="PR #145: Webcam Widget",
                     purpose="SUCCESS",
                     children=[
-                        _pr_meta("Merged: Apr 3, 2026", 693, 2, 5),
+                        Label(
+                            text="**Merged: Apr 3, 2026** - +693 / -2 lines - 5 files"
+                        ),
                         Label(
                             text=(
                                 "Added a Webcam widget with photo, video, "
@@ -433,15 +399,11 @@ invent_work_page = Page(
                         ),
                         Row(
                             children=[
-                                _link(
-                                    "View PR #145 on GitHub",
-                                    "https://github.com/invent-framework"
-                                    "/invent/pull/145",
+                                Label(
+                                    text="[View PR #145 on GitHub](https://github.com/invent-framework/invent/pull/145)"
                                 ),
-                                _link(
-                                    "Infania's component library",
-                                    "https://infania.pyscriptapps.com"
-                                    "/componentize/latest/index.html",
+                                Label(
+                                    text="[Infania's component library](https://infania.pyscriptapps.com/componentize/latest/index.html)"
                                 ),
                             ]
                         ),
@@ -451,7 +413,9 @@ invent_work_page = Page(
                     title="PR #146: Min/Max Naming Standardization",
                     purpose="SUCCESS",
                     children=[
-                        _pr_meta("Merged: Apr 10, 2026", 173, 162, 10),
+                        Label(
+                            text="**Merged: Apr 10, 2026** - +173 / -162 lines - 10 files"
+                        ),
                         Label(
                             text=(
                                 "Standardized min/max property naming "
@@ -463,10 +427,8 @@ invent_work_page = Page(
                                 "and all related tests and examples."
                             )
                         ),
-                        _link(
-                            "View PR #146 on GitHub",
-                            "https://github.com/invent-framework"
-                            "/invent/pull/146",
+                        Label(
+                            text="[View PR #146 on GitHub](https://github.com/invent-framework/invent/pull/146)"
                         ),
                     ],
                 ),
@@ -474,13 +436,8 @@ invent_work_page = Page(
                     title=("PR #147: Webcam + OpenCV Playground (In Review)"),
                     purpose="WARNING",
                     children=[
-                        Html(
-                            html=(
-                                "<p><strong>Open — pending review"
-                                "</strong> &nbsp;&bull;&nbsp;"
-                                " +702 / -112 lines"
-                                " &nbsp;&bull;&nbsp; 9 files</p>"
-                            )
+                        Label(
+                            text="**Open - pending review** - +702 / -112 lines - 9 files"
                         ),
                         Label(
                             text=(
@@ -497,10 +454,8 @@ invent_work_page = Page(
                                 "that require developer interaction to test."
                             )
                         ),
-                        _link(
-                            "View PR #147 on GitHub",
-                            "https://github.com/invent-framework"
-                            "/invent/pull/147",
+                        Label(
+                            text="[View PR #147 on GitHub](https://github.com/invent-framework/invent/pull/147)"
                         ),
                     ],
                 ),
@@ -519,14 +474,14 @@ demos_page = Page(
         Column(
             children=[
                 _nav_header(),
-                Html(html="<h1>Live Widget Demos</h1>"),
+                Label(text="# Live Widget Demos"),
                 Label(
                     text=(
                         "The widgets below were contributed this semester."
                         " They are rendered live!"
                     )
                 ),
-                Html(html="<h2>Rating Widget</h2>"),
+                Label(text="## Rating Widget"),
                 Label(
                     text=(
                         "Supports 1, 3, 5, or 10 stars with optional "
@@ -563,7 +518,7 @@ demos_page = Page(
                     ]
                 ),
                 Divider(),
-                Html(html="<h2>Webcam Widget</h2>"),
+                Label(text="## Webcam Widget"),
                 Label(
                     text=(
                         "Supports photo, video, and both modes. "
@@ -587,7 +542,7 @@ quotes_page = Page(
         Column(
             children=[
                 _nav_header(),
-                Html(html="<h1>What My Mentors Said</h1>"),
+                Label(text="# What My Mentors Said"),
                 Timeline(
                     children=[
                         ChatBubble(
@@ -647,7 +602,7 @@ reflection_page = Page(
         Column(
             children=[
                 _nav_header(),
-                Html(html="<h1>Reflection</h1>"),
+                Label(text="# Reflection"),
                 Label(text="Tufts CS practicum reflection questions."),
                 Accordion(
                     children=[

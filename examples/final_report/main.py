@@ -551,9 +551,16 @@ quotes_page = Page(
                             direction="received",
                             timestamp=datetime(2026, 4, 18),
                             content=(
-                                "[Quote from Nicholas Tollervey — "
-                                "Invent creator and PyScript core "
-                                "contributor. To be added.]"
+                                "It has been an absolute joy collaborating with Will. He is a credit to Tufts and, most importantly, to himself.\n\n"
+                                "Will engaged with a broad range of open-source development activities, including:\n\n"
+                                "- On-boarding into two distinct open-source projects, each with different technical requirements and conventions.\n"
+                                "- Autonomously triaging, addressing, testing and submitting improvements to both projects.\n"
+                                "- Mentoring a new collaborator (Infania) as they joined the Invent project.\n"
+                                "- Engaging with the wider BosPy Python community, with a lightning talk in the works for an upcoming face-to-face meetup.\n"
+                                "- Weekly one-to-one meetings in which he was regularly put on the spot to discuss his work, reflect on progress and plan next steps.\n\n"
+                                "Will handled all of this with aplomb.\n\n"
+                                "For assessment purposes, I want to be direct: over the years I have helped many graduate engineers take their first steps into the software profession, and Will stands out. His can-do attitude, his willingness to get stuck in, and his ability to quickly pick up unfamiliar practices, tools and processes put him ahead of the majority of those I have worked with at this stage of their careers. I would recommend him without hesitation. He would be an asset to any team.\n\n"
+                                "Bravo, Will — I hope you stay in touch with PyScript and keep up the excellent work."
                             ),
                         ),
                         ChatBubble(
@@ -564,8 +571,12 @@ quotes_page = Page(
                             direction="received",
                             timestamp=datetime(2026, 4, 18),
                             content=(
-                                "[Quote from Andrea Giammarchi — "
-                                "PyScript core maintainer. To be added.]"
+                                "My main regret around Will is that I had not enough time to fully collaborate with such a great person.\n\n"
+                                "- Will cared about the project\n"
+                                "- Will cared about the users\n"
+                                "- Will helped tackle bugs without making too many assumptions, always asking for feedback and producing meticulous examples to help find or fix issues.\n"
+                                "- Will suggested changes even in projects he only recently encountered, showing both curiosity and the initiative I value in contributors.\n\n"
+                                "I wish Will the best in anything he's pursuing because I am sure both attitude and skills are there and future collaborators will rarely be disappointed if Will keeps up the great work."
                             ),
                         ),
                         ChatBubble(

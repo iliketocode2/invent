@@ -559,8 +559,10 @@ quotes_page = Page(
                                 "- Engaging with the wider BosPy Python community, with a lightning talk in the works for an upcoming face-to-face meetup.\n"
                                 "- Weekly one-to-one meetings in which he was regularly put on the spot to discuss his work, reflect on progress and plan next steps.\n\n"
                                 "Will handled all of this with aplomb.\n\n"
-                                "For assessment purposes, I want to be direct: over the years I have helped many graduate engineers take their first steps into the software profession, and Will stands out. His can-do attitude, his willingness to get stuck in, and his ability to quickly pick up unfamiliar practices, tools and processes put him ahead of the majority of those I have worked with at this stage of their careers. I would recommend him without hesitation. He would be an asset to any team.\n\n"
-                                "Bravo, Will — I hope you stay in touch with PyScript and keep up the excellent work."
+                                "For assessment purposes, I want to be direct: over the years I have helped many graduate engineers take their first steps into the software profession, "
+                                "and Will stands out. His can-do attitude, his willingness to get stuck in, and his ability to quickly pick up unfamiliar practices, tools and processes "
+                                "put him ahead of the majority of those I have worked with at this stage of their careers. I would recommend him without hesitation. He would be an asset "
+                                "to any team.\n\n Bravo, Will — I hope you stay in touch with PyScript and keep up the excellent work."
                             ),
                         ),
                         ChatBubble(

@@ -1,18 +1,21 @@
-import asyncio
-
 import invent
-from invent.tools import (
-    ChartDonkeyAdapter,
-    StatusProxy,
-    fail_html,
-    make_assertion_callbacks,
-    make_plugin_runner,
-    pass_html,
-    wait_html,
-)
+import sys
+import os
+from pathlib import Path
+from invent.tools import make_helper
 from invent.ui import *
 
+from invent.tools.common_ui import (
+    back_link_widget,
+    fail_html,
+    make_status_setter,
+    pass_html,
+    publish_run,
+    wait_html,
+)
+
 await invent.setup()
+
 
 chart = Chart(
     chart_type="bar",
@@ -30,7 +33,7 @@ chart = Chart(
 )
 
 status_label = Label(text="Donkey starting...")
-status = StatusProxy(status_label, "chart")
+_set_chart_status = make_status_setter(invent, status_label, channel="chart")
 
 default_code = (
     "# Inputs: chart_type, data, options\n"
@@ -55,30 +58,65 @@ code_editor = CodeEditor(
 
 assert_worker = Html(html=wait_html("Worker not started."))
 assert_run = Html(html=wait_html("Code not run."))
-callbacks = make_assertion_callbacks(
-    worker_assert_widget=assert_worker,
-    run_assert_widget=assert_run,
-    pass_html=pass_html,
-    fail_html=fail_html,
-)
 
-adapter = ChartDonkeyAdapter(
-    chart_widget=chart,
-    status_key="chart.worker.status",
-    result_key="chart.worker.result",
-)
-_, ensure_worker, run_chart_code = make_plugin_runner(
-    adapter=adapter,
-    status_widget=status,
-    code_getter=lambda: code_editor.code or "",
-    success_text="Done. Chart updated from donkey result.",
-    **callbacks,
-)
+HELPER_CHANNEL = "chart-helper"
+
+make_helper(src="chart_helper.py", channel=HELPER_CHANNEL)
+
+
+def handle_helper_status(msg):
+    state = getattr(msg, "state", None)
+    detail = getattr(msg, "detail", None)
+    if state == "starting":
+        _set_chart_status("Starting donkey worker...")
+    elif state == "ready":
+        _set_chart_status("Donkey ready. Press Run Code.")
+        assert_worker.html = pass_html("Donkey worker ready.")
+    elif state == "busy":
+        _set_chart_status("Running code...")
+    elif state == "error":
+        _set_chart_status(f"Failed to start donkey: {detail}")
+        assert_worker.html = fail_html(f"Donkey worker failed: {detail}")
+
+
+def handle_helper_result(msg):
+    if msg.function != "run":
+        return
+    if msg.error:
+        _set_chart_status(f"Worker error: {msg.error}")
+        assert_run.html = fail_html(f"Code run failed: {msg.error}")
+        return
+    payload = msg.result
+    if not isinstance(payload, dict):
+        assert_run.html = fail_html("Result must be a dict.")
+        _set_chart_status("Invalid chart result.")
+        return
+    if "data" in payload:
+        chart.data = payload["data"]
+    if "options" in payload:
+        chart.options = payload["options"]
+    assert_run.html = pass_html("Code run succeeded.")
+    _set_chart_status("Done. Chart updated from donkey result.")
+
+
+invent.subscribe(handle_helper_status, HELPER_CHANNEL, "status")
+invent.subscribe(handle_helper_result, HELPER_CHANNEL, "result")
 
 
 async def handle_controls(message):
-    if getattr(message.source, "name", "") == "run_chart_code":
-        await run_chart_code()
+    if getattr(message.source, "name", "") != "run_chart_code":
+        return
+    publish_run(
+        invent,
+        channel=HELPER_CHANNEL,
+        function="run",
+        args=[
+            chart.chart_type,
+            chart.data,
+            chart.options,
+            code_editor.code or "",
+        ],
+    )
 
 
 invent.subscribe(
@@ -87,20 +125,13 @@ invent.subscribe(
     when_subject=["press"],
 )
 
-asyncio.create_task(ensure_worker())
-
 app = invent.App(
     name="Chart Donkey Interactive Test",
     pages=[
         Page(
             id="chart-donkey-test",
             children=[
-                Html(
-                    html=(
-                        '<p><a href="../index.html">'
-                        "Back to interactive tests</a></p>"
-                    )
-                ),
+                back_link_widget(),
                 Label(text="# Chart Donkey Interactive Test"),
                 Label(
                     text=(

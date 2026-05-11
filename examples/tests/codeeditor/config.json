@@ -1,5 +1,6 @@
 {
     "files": {
-        "/static/invent.min.tar.gz": "./*"
+        "/static/invent.min.tar.gz": "./*",
+        "./codeeditor_helper.py": ""
     }
 }

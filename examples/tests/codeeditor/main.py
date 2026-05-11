@@ -1,18 +1,21 @@
-import asyncio
-
 import invent
-from invent.tools import (
-    CodeEditorDonkeyAdapter,
-    StatusProxy,
-    fail_html,
-    make_assertion_callbacks,
-    make_plugin_runner,
-    pass_html,
-    wait_html,
-)
+import sys
+import os
+from pathlib import Path
+from invent.tools import make_helper
 from invent.ui import *
 
+from invent.tools.common_ui import (
+    back_link_widget,
+    fail_html,
+    make_status_setter,
+    pass_html,
+    publish_run,
+    wait_html,
+)
+
 await invent.setup()
+
 
 source_editor = CodeEditor(
     code=(
@@ -40,37 +43,69 @@ plugin_editor = CodeEditor(
 
 output_label = Label(text="Output appears here after run.")
 status_label = Label(text="Donkey starting...")
+_set_codeeditor_status = make_status_setter(
+    invent, status_label, channel="codeeditor"
+)
 
-# Proxy that syncs visible label and publishes to the
-# `codeeditor` channel.
-status = StatusProxy(status_label, "codeeditor")
 assert_worker = Html(html=wait_html("Worker not started."))
 assert_run = Html(html=wait_html("Code not run."))
-callbacks = make_assertion_callbacks(
-    worker_assert_widget=assert_worker,
-    run_assert_widget=assert_run,
-    pass_html=pass_html,
-    fail_html=fail_html,
-)
 
-adapter = CodeEditorDonkeyAdapter(
-    code_editor_widget=source_editor,
-    output_widget=output_label,
-    status_key="codeeditor.worker.status",
-    result_key="codeeditor.worker.result",
-)
-_, ensure_worker, run_plugin_code = make_plugin_runner(
-    adapter=adapter,
-    status_widget=status,
-    code_getter=lambda: plugin_editor.code or "",
-    success_text="Done. Plugin updated output label.",
-    **callbacks,
-)
+HELPER_CHANNEL = "codeeditor-helper"
+
+make_helper(src="codeeditor_helper.py", channel=HELPER_CHANNEL)
+
+
+def handle_helper_status(msg):
+    state = getattr(msg, "state", None)
+    detail = getattr(msg, "detail", None)
+    if state == "starting":
+        _set_codeeditor_status("Starting donkey worker...")
+    elif state == "ready":
+        _set_codeeditor_status("Donkey ready. Press Run Code.")
+        assert_worker.html = pass_html("Donkey worker ready.")
+    elif state == "busy":
+        _set_codeeditor_status("Running plugin...")
+    elif state == "error":
+        _set_codeeditor_status(f"Failed to start donkey: {detail}")
+        assert_worker.html = fail_html(f"Donkey worker failed: {detail}")
+
+
+def handle_helper_result(msg):
+    if msg.function != "run":
+        return
+    if msg.error:
+        _set_codeeditor_status(f"Worker error: {msg.error}")
+        assert_run.html = fail_html(f"Code run failed: {msg.error}")
+        return
+    payload = msg.result
+    if not isinstance(payload, dict):
+        assert_run.html = fail_html("Result must be a dict.")
+        return
+    out = payload.get("output")
+    if out is None:
+        assert_run.html = fail_html("Result must include `output`.")
+        return
+    output_label.text = str(out)
+    assert_run.html = pass_html("Code run succeeded.")
+    _set_codeeditor_status("Done. Plugin updated output label.")
+
+
+invent.subscribe(handle_helper_status, HELPER_CHANNEL, "status")
+invent.subscribe(handle_helper_result, HELPER_CHANNEL, "result")
 
 
 async def handle_controls(message):
-    if getattr(message.source, "name", "") == "run_codeeditor_plugin":
-        await run_plugin_code()
+    if getattr(message.source, "name", "") != "run_codeeditor_plugin":
+        return
+    publish_run(
+        invent,
+        channel=HELPER_CHANNEL,
+        function="run",
+        args=[
+            source_editor.code or "",
+            plugin_editor.code or "",
+        ],
+    )
 
 
 invent.subscribe(
@@ -79,20 +114,13 @@ invent.subscribe(
     when_subject=["press"],
 )
 
-asyncio.create_task(ensure_worker())
-
 app = invent.App(
     name="CodeEditor Donkey Interactive Test",
     pages=[
         Page(
             id="codeeditor-donkey-test",
             children=[
-                Html(
-                    html=(
-                        '<p><a href="../index.html">'
-                        "Back to interactive tests</a></p>"
-                    )
-                ),
+                back_link_widget(),
                 Label(text="# CodeEditor Donkey Interactive Test"),
                 Label(
                     text=(

@@ -1,5 +1,6 @@
 {
-    "files": {
-        "/static/invent.min.tar.gz": "./*"
-    }
+  "files": {
+    "/static/invent.min.tar.gz": "./*",
+    "./chart_helper.py": ""
+  }
 }
